@@ -23,7 +23,11 @@ except ImportError:
 try:
     from .text_analysis import TextAnalyzer
 except ImportError:
-    from text_analysis import TextAnalyzer
+    try:
+        from text_analysis import TextAnalyzer
+    except ImportError:
+        # TextAnalyzer not strictly required for sentiment analysis
+        TextAnalyzer = None
 
 
 class SentimentAnalyzer:

@@ -47,14 +47,20 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-1. **Run EDA analysis:**
+1. **Run end-to-end example:**
+```bash
+python scripts/end_to_end_example.py
+```
+
+2. **Run EDA analysis:**
 ```bash
 jupyter notebook notebooks/task_1_eda.ipynb
 ```
 
-2. **Run tests:**
+3. **Run tests:**
 ```bash
 pytest tests/
+pytest tests/test_integration.py -v  # End-to-end integration test
 ```
 
 ## Key Features

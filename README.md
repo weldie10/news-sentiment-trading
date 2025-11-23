@@ -72,25 +72,58 @@ pytest tests/test_integration.py -v  # End-to-end integration test
 - **Sentiment Analysis**: Multi-method sentiment analysis (TextBlob, VADER) with aggregation
 - **Correlation Analysis**: Statistical correlation between news sentiment and stock returns
 
+## Current Progress
+
+### ✅ Completed Features
+- **Data Loading**: Robust date parsing for mixed timezone formats
+- **Text Analysis**: Keyword extraction and financial term identification
+- **Publisher Analysis**: Publisher statistics and email domain extraction
+- **Technical Indicators**: TA-Lib integration (SMA, EMA, RSI, MACD, Bollinger Bands)
+- **Sentiment Analysis**: Multi-method sentiment scoring (TextBlob, VADER)
+- **Correlation Analysis**: Statistical correlation between sentiment and returns
+- **Integration Tests**: End-to-end workflow validation
+- **Sample Scripts**: Runnable examples demonstrating functionality
+
+### 📊 Expected Inputs/Outputs
+
+**Data Loading:**
+- Input: CSV file with columns: `headline`, `url`, `publisher`, `date`, `stock`
+- Output: DataFrame with temporal features (`year`, `month`, `day_of_week`, `hour`, etc.)
+
+**Sentiment Analysis:**
+- Input: Series of headline strings
+- Output: Series of sentiment scores (-1 to 1) and daily aggregated sentiment
+
+**Correlation Analysis:**
+- Input: Sentiment scores and stock returns (aligned by date)
+- Output: Dictionary with `pearson_r`, `p_value`, `is_significant`, `n_observations`
+
 ## API Examples
 
 ### Data Loading
 ```python
-from src.data_loader import DataLoader
+from src.data_loader import load_analyst_ratings, get_data_info
 
-loader = DataLoader()
-df = loader.load_analyst_ratings('data/raw_analyst_ratings.csv')
-info = loader.get_data_info(df)
+# Load and preprocess data
+df = load_analyst_ratings('data/raw_analyst_ratings.csv')
+# Output: DataFrame with ~1.4M records, temporal features added
+
+# Get data information
+info = get_data_info(df)
+# Output: {'total_records': 1407328, 'date_range': (...), ...}
 ```
 
 ### Text Analysis
 ```python
-from src.text_analysis import TextAnalyzer
+from src.text_analysis import get_top_keywords, extract_financial_keywords
 
-analyzer = TextAnalyzer()
-tokens = analyzer.preprocess_text("Apple stock rises 5%")
-keywords = analyzer.get_top_keywords(df, 'headline', top_n=20)
-financial_terms = analyzer.extract_financial_keywords(df)
+# Extract top keywords
+keywords = get_top_keywords(df, 'headline', top_n=20)
+# Output: Series with top 20 keywords and their counts
+
+# Extract financial terms
+financial_terms = extract_financial_keywords(df)
+# Output: Dict with financial keywords and frequencies
 ```
 
 ### Technical Indicators
@@ -108,8 +141,13 @@ macd = ta.calculate_macd(price_df)
 from src.sentiment_analysis import SentimentAnalyzer
 
 analyzer = SentimentAnalyzer()
+# Analyze sentiment for headlines
 df['sentiment'] = analyzer.analyze_sentiment_batch(df['headline'])
+# Output: Series of sentiment scores (-1 to 1)
+
+# Aggregate daily sentiment
 daily_sentiment = analyzer.aggregate_daily_sentiment(df)
+# Output: DataFrame with mean_sentiment, article_count, positive_count, etc.
 ```
 
 ### Correlation Analysis
@@ -117,8 +155,13 @@ daily_sentiment = analyzer.aggregate_daily_sentiment(df)
 from src.correlation_analysis import CorrelationAnalyzer
 
 analyzer = CorrelationAnalyzer()
+# Calculate correlation
 correlation = analyzer.calculate_correlation(sentiment_scores, returns)
-lagged = analyzer.analyze_lagged_correlations(sentiment_df, stock_df)
+# Output: {'pearson_r': 0.15, 'p_value': 0.02, 'is_significant': True, ...}
+
+# Analyze lagged correlations
+lagged = analyzer.analyze_lagged_correlations(sentiment_df, stock_df, max_lag=5)
+# Output: DataFrame with correlation results for each lag period
 ```
 
 ## Data

@@ -1,5 +1,13 @@
 """
-Text analysis utilities for headline processing.
+Text analysis utilities for headline processing and NLP operations.
+
+This module provides functions for preprocessing text, extracting n-grams,
+identifying keywords, and finding financial-specific terms in headlines.
+
+Example:
+    >>> from src.text_analysis import preprocess_text, get_top_keywords
+    >>> tokens = preprocess_text("Apple stock rises 5%")
+    >>> keywords = get_top_keywords(df, 'headline', top_n=20)
 """
 import re
 import pandas as pd
@@ -29,33 +37,47 @@ except LookupError:
 
 def preprocess_text(text: str, remove_stopwords: bool = True) -> List[str]:
     """
-    Preprocess text for analysis.
+    Preprocess text for analysis by tokenizing and cleaning.
+    
+    Processing steps:
+    1. Convert to lowercase
+    2. Remove special characters (keep alphanumeric and spaces)
+    3. Tokenize using NLTK word_tokenize
+    4. Remove stopwords (if enabled)
+    5. Filter tokens shorter than 3 characters
     
     Args:
-        text: Input text string
-        remove_stopwords: Whether to remove stopwords
+        text: Input text string to preprocess
+        remove_stopwords: Whether to remove English stopwords (default: True)
         
     Returns:
-        List of processed tokens
+        List of processed tokens (strings)
+        
+    Example:
+        >>> preprocess_text("Apple's stock rises 5%!")
+        ['apple', 'stock', 'rises']
+        >>> preprocess_text("The stock is rising", remove_stopwords=False)
+        ['the', 'stock', 'is', 'rising']
     """
+    # Handle missing values
     if pd.isna(text):
         return []
     
-    # Convert to lowercase
+    # Step 1: Convert to lowercase for consistency
     text = str(text).lower()
     
-    # Remove special characters but keep spaces
+    # Step 2: Remove special characters but keep spaces and alphanumeric
     text = re.sub(r'[^a-zA-Z0-9\s]', ' ', text)
     
-    # Tokenize
+    # Step 3: Tokenize using NLTK
     tokens = word_tokenize(text)
     
-    # Remove stopwords if requested
+    # Step 4: Remove stopwords if requested (common words like 'the', 'is', etc.)
     if remove_stopwords:
         stop_words = set(stopwords.words('english'))
         tokens = [token for token in tokens if token not in stop_words]
     
-    # Remove short tokens
+    # Step 5: Filter out very short tokens (likely noise)
     tokens = [token for token in tokens if len(token) > 2]
     
     return tokens

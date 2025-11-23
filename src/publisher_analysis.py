@@ -1,5 +1,13 @@
 """
-Publisher analysis utilities.
+Publisher analysis utilities for analyzing news source patterns.
+
+This module provides functions for extracting email domains, classifying
+publisher types, and generating publisher statistics.
+
+Example:
+    >>> from src.publisher_analysis import get_publisher_stats, extract_email_domains
+    >>> stats = get_publisher_stats(df)
+    >>> domains = extract_email_domains(df)
 """
 import pandas as pd
 import re
@@ -8,21 +16,32 @@ from typing import Dict, Tuple
 
 def extract_email_domains(df: pd.DataFrame, publisher_col: str = 'publisher') -> pd.DataFrame:
     """
-    Extract email domains from publisher column.
+    Extract email domains from publisher column for organizational analysis.
+    
+    Identifies publishers that are email addresses (e.g., 'author@benzinga.com')
+    and extracts the domain portion for grouping and analysis.
     
     Args:
         df: DataFrame with publisher information
-        publisher_col: Name of publisher column
+        publisher_col: Name of the publisher column (default: 'publisher')
         
     Returns:
-        DataFrame with added 'domain' column
+        DataFrame with added columns:
+        - is_email: Boolean indicating if publisher is an email address
+        - domain: Extracted email domain (None for non-email publishers)
+        
+    Example:
+        >>> df = pd.DataFrame({'publisher': ['author@benzinga.com', 'News Desk']})
+        >>> result = extract_email_domains(df)
+        >>> print(result[result['is_email']]['domain'].iloc[0])
+        'benzinga.com'
     """
     df = df.copy()
     
-    # Identify email-based publishers
+    # Identify email-based publishers (contain '@' symbol)
     email_mask = df[publisher_col].str.contains('@', na=False)
     
-    # Extract domain
+    # Extract domain by splitting on '@' and taking the second part
     df['is_email'] = email_mask
     df['domain'] = None
     df.loc[email_mask, 'domain'] = df.loc[email_mask, publisher_col].str.split('@').str[1]

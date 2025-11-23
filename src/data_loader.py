@@ -1,27 +1,53 @@
 """
 Data loading utilities for analyst ratings dataset.
+
+This module handles loading and preprocessing of financial news data,
+including robust date parsing for mixed timezone formats.
+
+Example:
+    >>> from src.data_loader import load_analyst_ratings, get_data_info
+    >>> df = load_analyst_ratings('data/raw_analyst_ratings.csv')
+    >>> info = get_data_info(df)
+    >>> print(f"Loaded {info['total_records']:,} records")
 """
 import pandas as pd
 import re
 from pathlib import Path
+from typing import Dict
 
 
 def load_analyst_ratings(data_path: str = "data/raw_analyst_ratings.csv") -> pd.DataFrame:
     """
-    Load the raw analyst ratings dataset.
+    Load and preprocess the raw analyst ratings dataset.
+    
+    Handles mixed date formats (timezone-aware and naive), extracts temporal
+    features, and normalizes all dates to UTC-naive format.
     
     Args:
-        data_path: Path to the CSV file
+        data_path: Path to the CSV file containing analyst ratings
         
     Returns:
-        DataFrame with analyst ratings data
+        DataFrame with preprocessed data including:
+        - Original columns: headline, url, publisher, date, stock
+        - Temporal features: year, month, day, day_of_week, hour, date_only
+        
+    Raises:
+        FileNotFoundError: If the data file doesn't exist
+        ValueError: If required columns are missing
+        
+    Example:
+        >>> df = load_analyst_ratings('data/raw_analyst_ratings.csv')
+        >>> print(df.columns.tolist())
+        ['headline', 'url', 'publisher', 'date', 'stock', 'year', 'month', ...]
+        >>> print(f"Date range: {df['date'].min()} to {df['date'].max()}")
     """
+    # Load CSV file
     df = pd.read_csv(data_path)
     
     # Parse date column - handle mixed formats (some with timezone, some without)
     # Some dates have format "2020-06-05 10:30:54-04:00" (with timezone)
     # Others have format "2020-05-22 00:00:00" (without timezone)
-    # Parse by splitting into timezone-aware and naive, then recombining in order
+    # Strategy: Parse timezone-aware and naive dates separately to avoid conflicts
     
     # Identify dates with timezone (pattern: ends with +/-HH:MM)
     tz_pattern = r'[-+]\d{2}:\d{2}$'

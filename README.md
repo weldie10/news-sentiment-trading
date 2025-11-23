@@ -15,10 +15,13 @@ This project performs comprehensive analysis of analyst ratings and financial ne
 ├── .vscode/              # VS Code settings
 ├── .github/workflows/    # CI/CD pipelines
 ├── data/                 # Raw datasets
-├── src/                  # Source code modules
-│   ├── data_loader.py
-│   ├── text_analysis.py
-│   └── publisher_analysis.py
+├── src/                  # Source code modules (OO design)
+│   ├── data_loader.py          # DataLoader class
+│   ├── text_analysis.py        # TextAnalyzer class
+│   ├── publisher_analysis.py   # PublisherAnalyzer class
+│   ├── technical_indicators.py # TechnicalAnalyzer class
+│   ├── sentiment_analysis.py   # SentimentAnalyzer class
+│   └── correlation_analysis.py # CorrelationAnalyzer class
 ├── notebooks/            # Jupyter notebooks for analysis
 │   └── task_1_eda.ipynb
 ├── tests/                # Unit tests
@@ -56,10 +59,61 @@ pytest tests/
 
 ## Key Features
 
+- **Object-Oriented Design**: Consistent class-based APIs for all modules
 - **Exploratory Data Analysis**: Comprehensive analysis of news publication patterns, publisher activity, and temporal trends
 - **Text Analysis**: NLP-based topic modeling and keyword extraction from financial headlines
 - **Technical Analysis**: TA-Lib integration for calculating technical indicators (RSI, MACD, moving averages)
-- **Sentiment Analysis**: Correlation analysis between news sentiment and stock returns
+- **Sentiment Analysis**: Multi-method sentiment analysis (TextBlob, VADER) with aggregation
+- **Correlation Analysis**: Statistical correlation between news sentiment and stock returns
+
+## API Examples
+
+### Data Loading
+```python
+from src.data_loader import DataLoader
+
+loader = DataLoader()
+df = loader.load_analyst_ratings('data/raw_analyst_ratings.csv')
+info = loader.get_data_info(df)
+```
+
+### Text Analysis
+```python
+from src.text_analysis import TextAnalyzer
+
+analyzer = TextAnalyzer()
+tokens = analyzer.preprocess_text("Apple stock rises 5%")
+keywords = analyzer.get_top_keywords(df, 'headline', top_n=20)
+financial_terms = analyzer.extract_financial_keywords(df)
+```
+
+### Technical Indicators
+```python
+from src.technical_indicators import TechnicalAnalyzer
+
+ta = TechnicalAnalyzer()
+df_with_indicators = ta.calculate_all_indicators(price_df)
+rsi = ta.calculate_rsi(price_df, period=14)
+macd = ta.calculate_macd(price_df)
+```
+
+### Sentiment Analysis
+```python
+from src.sentiment_analysis import SentimentAnalyzer
+
+analyzer = SentimentAnalyzer()
+df['sentiment'] = analyzer.analyze_sentiment_batch(df['headline'])
+daily_sentiment = analyzer.aggregate_daily_sentiment(df)
+```
+
+### Correlation Analysis
+```python
+from src.correlation_analysis import CorrelationAnalyzer
+
+analyzer = CorrelationAnalyzer()
+correlation = analyzer.calculate_correlation(sentiment_scores, returns)
+lagged = analyzer.analyze_lagged_correlations(sentiment_df, stock_df)
+```
 
 ## Data
 

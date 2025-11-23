@@ -61,4 +61,5 @@ data/
 *.json
 *.db
 *.sqlite
+INTERIM_REPORT_TASK1.md
 

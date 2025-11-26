@@ -208,8 +208,8 @@ def main():
         'correlation_results': {
             'pearson_r': float(correlation_result['pearson_r']) if pd.notna(correlation_result['pearson_r']) else None,
             'p_value': float(correlation_result['p_value']) if pd.notna(correlation_result['p_value']) else None,
-            'is_significant': correlation_result['is_significant'],
-            'n_observations': correlation_result['n_observations']
+            'is_significant': bool(correlation_result['is_significant']),
+            'n_observations': int(correlation_result['n_observations'])
         }
     }
     

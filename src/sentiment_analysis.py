@@ -49,7 +49,7 @@ class SentimentAnalyzer:
     
     def __init__(self):
         """Initialize the SentimentAnalyzer."""
-        self.text_analyzer = TextAnalyzer()
+        self.text_analyzer = TextAnalyzer() if TextAnalyzer is not None else None
         if VADER_AVAILABLE:
             self.vader_analyzer = SentimentIntensityAnalyzer()
         else:

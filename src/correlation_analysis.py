@@ -15,8 +15,10 @@ from typing import Dict, Optional, Tuple
 from scipy import stats
 try:
     from .sentiment_analysis import SentimentAnalyzer
+    from .utils import align_dates
 except ImportError:
     from sentiment_analysis import SentimentAnalyzer
+    from utils import align_dates
 
 
 class CorrelationAnalyzer:
@@ -62,7 +64,8 @@ class CorrelationAnalyzer:
         Align sentiment and stock data by date.
         
         Matches sentiment scores to corresponding trading days, handling
-        after-hours and pre-market news appropriately.
+        after-hours and pre-market news appropriately. Uses shared utility
+        to reduce code duplication.
         
         Args:
             sentiment_df: DataFrame with sentiment data
@@ -77,24 +80,12 @@ class CorrelationAnalyzer:
             >>> analyzer = CorrelationAnalyzer()
             >>> sent_aligned, stock_aligned = analyzer.align_data(sentiment_df, stock_df)
         """
-        # Convert dates to datetime
-        sentiment_df = sentiment_df.copy()
-        stock_df = stock_df.copy()
-        
-        sentiment_df[sentiment_date_col] = pd.to_datetime(sentiment_df[sentiment_date_col])
-        stock_df[stock_date_col] = pd.to_datetime(stock_df[stock_date_col])
-        
-        # Extract date only (without time)
-        sentiment_df['date_only'] = sentiment_df[sentiment_date_col].dt.date
-        stock_df['date_only'] = stock_df[stock_date_col].dt.date
-        
-        # Merge on date
-        merged = pd.merge(
-            sentiment_df,
-            stock_df,
-            on='date_only',
-            how='inner',
-            suffixes=('_sentiment', '_stock')
+        # Use shared alignment utility
+        merged, _ = align_dates(
+            sentiment_df, stock_df,
+            date_col1=sentiment_date_col,
+            date_col2=stock_date_col,
+            how='inner'
         )
         
         return merged, merged

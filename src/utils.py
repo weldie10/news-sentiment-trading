@@ -6,7 +6,7 @@ and reduce code duplication.
 """
 import pandas as pd
 import numpy as np
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 from pathlib import Path
 
 
@@ -56,6 +56,58 @@ def ensure_datetime(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     if date_column in df.columns:
         df[date_column] = pd.to_datetime(df[date_column], errors='coerce')
     return df
+
+
+def align_dates(df1: pd.DataFrame, df2: pd.DataFrame,
+                date_col1: str = 'date', date_col2: str = 'date',
+                how: str = 'inner', suffixes: Tuple[str, str] = ('_sentiment', '_stock')) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Align two DataFrames by date, extracting date-only for matching.
+    
+    This is a shared utility to reduce duplication of date alignment logic
+    across different modules.
+    
+    Args:
+        df1: First DataFrame
+        df2: Second DataFrame
+        date_col1: Date column name in first DataFrame
+        date_col2: Date column name in second DataFrame
+        how: Merge type ('inner', 'left', 'right', 'outer')
+        suffixes: Tuple of suffixes for overlapping columns
+        
+    Returns:
+        Tuple of aligned DataFrames (merged, merged) - both are the same merged DataFrame
+        
+    Example:
+        >>> df1_aligned, df2_aligned = align_dates(sentiment_df, stock_df)
+    """
+    from typing import Tuple
+    
+    df1 = df1.copy()
+    df2 = df2.copy()
+    
+    # Ensure dates are datetime
+    df1[date_col1] = pd.to_datetime(df1[date_col1], errors='coerce')
+    df2[date_col2] = pd.to_datetime(df2[date_col2], errors='coerce')
+    
+    # Extract date only (without time)
+    df1['_date_only'] = df1[date_col1].dt.date
+    df2['_date_only'] = df2[date_col2].dt.date
+    
+    # Merge on date
+    merged = pd.merge(
+        df1,
+        df2,
+        on='_date_only',
+        how=how,
+        suffixes=suffixes
+    )
+    
+    # Drop temporary column
+    if '_date_only' in merged.columns:
+        merged = merged.drop(columns=['_date_only'])
+    
+    return merged, merged
 
 
 def safe_divide(numerator: Union[pd.Series, float], 

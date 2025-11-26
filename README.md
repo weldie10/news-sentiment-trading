@@ -9,6 +9,39 @@ This project performs comprehensive analysis of analyst ratings and financial ne
 - Calculate technical indicators using TA-Lib
 - Analyze sentiment correlation with stock price movements
 
+## Tasks
+
+### Task 1: Exploratory Data Analysis (EDA)
+Comprehensive analysis of financial news data including:
+- **Data Loading**: Robust parsing of mixed timezone formats with temporal feature extraction
+- **Text Analysis**: NLP-based keyword extraction and financial term identification
+- **Publisher Analysis**: Publisher statistics, activity patterns, and domain analysis
+- **Temporal Analysis**: Time series patterns, publication frequency, and trend identification
+
+**Deliverables**: `notebooks/task_1_eda.ipynb`
+
+### Task 2: Quantitative Analysis
+Technical analysis and financial metrics calculation:
+- **Data Preparation**: Stock price data loading with OHLCV normalization
+- **Technical Indicators**: TA-Lib integration for SMA, EMA, RSI, MACD, and Bollinger Bands
+- **Financial Metrics**: Volatility, Sharpe ratio, maximum drawdown, and risk-adjusted returns
+- **Visualization**: Comprehensive charts for price trends, indicators, and returns distribution
+
+**Deliverables**: 
+- `scripts/task2_quantitative_analysis.py`
+- `notebooks/task_2_quantitative_analysis.ipynb`
+
+### Task 3: Correlation Analysis
+Sentiment-driven stock movement correlation:
+- **Date Alignment**: Normalization and alignment of news and stock datasets by trading dates
+- **Sentiment Analysis**: Multi-method sentiment scoring using TextBlob and VADER
+- **Daily Aggregation**: Average sentiment computation for days with multiple articles
+- **Correlation Analysis**: Pearson correlation with statistical significance testing and lagged correlation analysis
+
+**Deliverables**:
+- `scripts/task3_correlation_analysis.py`
+- `notebooks/task_3_correlation_analysis.ipynb`
+
 ## Project Structure
 
 ```
@@ -20,12 +53,18 @@ This project performs comprehensive analysis of analyst ratings and financial ne
 │   ├── text_analysis.py        # TextAnalyzer class
 │   ├── publisher_analysis.py   # PublisherAnalyzer class
 │   ├── technical_indicators.py # TechnicalAnalyzer class
+│   ├── financial_metrics.py   # FinancialMetrics class
+│   ├── visualization.py       # StockVisualizer class
 │   ├── sentiment_analysis.py   # SentimentAnalyzer class
 │   └── correlation_analysis.py # CorrelationAnalyzer class
 ├── notebooks/            # Jupyter notebooks for analysis
-│   └── task_1_eda.ipynb
+│   ├── task_1_eda.ipynb
+│   ├── task_2_quantitative_analysis.ipynb
+│   └── task_3_correlation_analysis.ipynb
 ├── tests/                # Unit tests
 └── scripts/              # Utility scripts
+    ├── task2_quantitative_analysis.py
+    └── task3_correlation_analysis.py
 ```
 
 ## Setup
@@ -47,17 +86,26 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-1. **Run end-to-end example:**
-```bash
-python scripts/end_to_end_example.py
-```
-
-2. **Run EDA analysis:**
+1. **Task 1 - Exploratory Data Analysis:**
 ```bash
 jupyter notebook notebooks/task_1_eda.ipynb
 ```
 
-3. **Run tests:**
+2. **Task 2 - Quantitative Analysis:**
+```bash
+python scripts/task2_quantitative_analysis.py --stock data/AAPL.csv --output output/task2
+# Or use the notebook:
+jupyter notebook notebooks/task_2_quantitative_analysis.ipynb
+```
+
+3. **Task 3 - Correlation Analysis:**
+```bash
+python scripts/task3_correlation_analysis.py --news data/raw_analyst_ratings.csv --stock data/AAPL.csv --output output/task3
+# Or use the notebook:
+jupyter notebook notebooks/task_3_correlation_analysis.ipynb
+```
+
+4. **Run tests:**
 ```bash
 pytest tests/
 pytest tests/test_integration.py -v  # End-to-end integration test
@@ -75,14 +123,12 @@ pytest tests/test_integration.py -v  # End-to-end integration test
 ## Current Progress
 
 ### ✅ Completed Features
-- **Data Loading**: Robust date parsing for mixed timezone formats
-- **Text Analysis**: Keyword extraction and financial term identification
-- **Publisher Analysis**: Publisher statistics and email domain extraction
-- **Technical Indicators**: TA-Lib integration (SMA, EMA, RSI, MACD, Bollinger Bands)
-- **Sentiment Analysis**: Multi-method sentiment scoring (TextBlob, VADER)
-- **Correlation Analysis**: Statistical correlation between sentiment and returns
+- **Task 1 - EDA**: Data loading, text analysis, publisher analysis, temporal patterns
+- **Task 2 - Quantitative Analysis**: Technical indicators (TA-Lib), financial metrics, comprehensive visualizations
+- **Task 3 - Correlation Analysis**: Date alignment, sentiment analysis, correlation with lagged analysis
+- **Object-Oriented Design**: Class-based APIs for all modules (DataLoader, FinancialMetrics, StockVisualizer)
 - **Integration Tests**: End-to-end workflow validation
-- **Sample Scripts**: Runnable examples demonstrating functionality
+- **Production Scripts**: Runnable scripts for all three tasks
 
 ### 📊 Expected Inputs/Outputs
 
@@ -102,14 +148,21 @@ pytest tests/test_integration.py -v  # End-to-end integration test
 
 ### Data Loading
 ```python
-from src.data_loader import load_analyst_ratings, get_data_info
+from src.data_loader import DataLoader
 
-# Load and preprocess data
-df = load_analyst_ratings('data/raw_analyst_ratings.csv')
+# Initialize DataLoader
+loader = DataLoader()
+
+# Load analyst ratings data
+df = loader.load_analyst_ratings('data/raw_analyst_ratings.csv')
 # Output: DataFrame with ~1.4M records, temporal features added
 
+# Load stock price data
+stock_df = loader.load_stock_price_data('data/AAPL.csv')
+# Output: DataFrame with normalized OHLCV columns
+
 # Get data information
-info = get_data_info(df)
+info = loader.get_data_info(df)
 # Output: {'total_records': 1407328, 'date_range': (...), ...}
 ```
 
@@ -126,14 +179,22 @@ financial_terms = extract_financial_keywords(df)
 # Output: Dict with financial keywords and frequencies
 ```
 
-### Technical Indicators
+### Technical Indicators & Financial Metrics
 ```python
 from src.technical_indicators import TechnicalAnalyzer
+from src.financial_metrics import FinancialMetrics
 
-ta = TechnicalAnalyzer()
+# Calculate technical indicators
+ta = TechnicalAnalyzer(close_col='close', high_col='high', low_col='low', volume_col='volume')
 df_with_indicators = ta.calculate_all_indicators(price_df)
 rsi = ta.calculate_rsi(price_df, period=14)
 macd = ta.calculate_macd(price_df)
+
+# Calculate financial metrics
+metrics = FinancialMetrics(risk_free_rate=0.02)
+df_with_metrics = metrics.calculate_all_metrics(df_with_indicators, price_col='close')
+volatility = metrics.calculate_volatility(price_df, window=30)
+sharpe = metrics.calculate_sharpe_ratio(returns, window=252)
 ```
 
 ### Sentiment Analysis
@@ -148,6 +209,17 @@ df['sentiment'] = analyzer.analyze_sentiment_batch(df['headline'])
 # Aggregate daily sentiment
 daily_sentiment = analyzer.aggregate_daily_sentiment(df)
 # Output: DataFrame with mean_sentiment, article_count, positive_count, etc.
+```
+
+### Visualization
+```python
+from src.visualization import StockVisualizer
+
+viz = StockVisualizer(figsize=(14, 8))
+viz.plot_price_with_indicators(df, indicators=['sma', 'ema', 'bb_upper', 'bb_lower'])
+viz.plot_technical_indicators(df)
+viz.plot_correlation(sentiment_scores, returns)
+viz.save_plot('output/chart.png')
 ```
 
 ### Correlation Analysis

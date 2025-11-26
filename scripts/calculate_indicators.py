@@ -11,6 +11,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.technical_indicators import TechnicalAnalyzer
+from src.data_loader import DataLoader
+from src.financial_metrics import FinancialMetrics
 
 
 def main():
@@ -20,20 +22,20 @@ def main():
     
     args = parser.parse_args()
     
-    # Load data
+    # Load data using DataLoader class
     print(f"Loading data from {args.input}")
-    df = pd.read_csv(args.input)
+    loader = DataLoader()
+    df = loader.load_stock_price_data(args.input)
     
-    # Ensure date column is datetime
-    if 'Date' in df.columns:
-        df['Date'] = pd.to_datetime(df['Date'])
-    elif 'date' in df.columns:
-        df['date'] = pd.to_datetime(df['date'])
-    
-    # Calculate indicators
+    # Calculate technical indicators
     print("Calculating technical indicators...")
-    ta = TechnicalAnalyzer()
+    ta = TechnicalAnalyzer(close_col='close', high_col='high', low_col='low', volume_col='volume')
     df_with_indicators = ta.calculate_all_indicators(df)
+    
+    # Calculate financial metrics
+    print("Calculating financial metrics...")
+    metrics = FinancialMetrics()
+    df_with_indicators = metrics.calculate_all_metrics(df_with_indicators, price_col='close')
     
     # Save results
     print(f"Saving results to {args.output}")

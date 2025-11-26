@@ -56,15 +56,21 @@ Sentiment-driven stock movement correlation:
 │   ├── financial_metrics.py   # FinancialMetrics class
 │   ├── visualization.py       # StockVisualizer class
 │   ├── sentiment_analysis.py   # SentimentAnalyzer class
-│   └── correlation_analysis.py # CorrelationAnalyzer class
+│   ├── correlation_analysis.py # CorrelationAnalyzer class
+│   ├── interfaces.py          # Abstract base classes for consistent contracts
+│   └── utils.py               # Shared utilities (date alignment, etc.)
 ├── notebooks/            # Jupyter notebooks for analysis
 │   ├── task_1_eda.ipynb
 │   ├── task_2_quantitative_analysis.ipynb
 │   └── task_3_correlation_analysis.ipynb
 ├── tests/                # Unit tests
+│   ├── test_class_contracts.py  # Class contract validation tests
+│   ├── test_smoke.py            # Smoke tests for functional readiness
+│   └── test_integration.py      # End-to-end integration tests
 └── scripts/              # Utility scripts
     ├── task2_quantitative_analysis.py
-    └── task3_correlation_analysis.py
+    ├── task3_correlation_analysis.py
+    └── end_to_end_demo.py       # Complete workflow demonstration
 ```
 
 ## Setup
@@ -105,20 +111,38 @@ python scripts/task3_correlation_analysis.py --news data/raw_analyst_ratings.csv
 jupyter notebook notebooks/task_3_correlation_analysis.ipynb
 ```
 
-4. **Run tests:**
+4. **Run End-to-End Demo:**
 ```bash
+python scripts/end_to_end_demo.py
+# Outputs saved to output/end_to_end_demo/
+```
+
+5. **Run tests:**
+```bash
+# Run all tests
 pytest tests/
-pytest tests/test_integration.py -v  # End-to-end integration test
+
+# Run smoke tests (quick functional verification)
+pytest tests/test_smoke.py -v
+
+# Run class contract tests
+pytest tests/test_class_contracts.py -v
+
+# Run integration tests
+pytest tests/test_integration.py -v
 ```
 
 ## Key Features
 
-- **Object-Oriented Design**: Consistent class-based APIs for all modules
+- **Object-Oriented Design**: Consistent class-based APIs for all modules with defined interfaces
+- **Code Organization**: Shared utilities reduce duplication, consistent interfaces ensure maintainability
+- **Comprehensive Testing**: Unit tests, contract tests, smoke tests, and integration tests
 - **Exploratory Data Analysis**: Comprehensive analysis of news publication patterns, publisher activity, and temporal trends
 - **Text Analysis**: NLP-based topic modeling and keyword extraction from financial headlines
 - **Technical Analysis**: TA-Lib integration for calculating technical indicators (RSI, MACD, moving averages)
 - **Sentiment Analysis**: Multi-method sentiment analysis (TextBlob, VADER) with aggregation
 - **Correlation Analysis**: Statistical correlation between news sentiment and stock returns
+- **End-to-End Demo**: Complete workflow demonstration with sample outputs and documentation
 
 ## Current Progress
 
@@ -127,7 +151,13 @@ pytest tests/test_integration.py -v  # End-to-end integration test
 - **Task 2 - Quantitative Analysis**: Technical indicators (TA-Lib), financial metrics, comprehensive visualizations
 - **Task 3 - Correlation Analysis**: Date alignment, sentiment analysis, correlation with lagged analysis
 - **Object-Oriented Design**: Class-based APIs for all modules (DataLoader, FinancialMetrics, StockVisualizer)
-- **Integration Tests**: End-to-end workflow validation
+- **Code Organization**: Shared utilities (`utils.py`), consistent interfaces (`interfaces.py`), reduced duplication
+- **Comprehensive Testing**: 
+  - Unit tests for all modules
+  - Class contract tests (`test_class_contracts.py`)
+  - Smoke tests for functional readiness (`test_smoke.py`)
+  - Integration tests for end-to-end workflows
+- **End-to-End Demo**: Complete demonstration script with sample outputs (`scripts/end_to_end_demo.py`)
 - **Production Scripts**: Runnable scripts for all three tasks
 
 ### 📊 Expected Inputs/Outputs
@@ -264,10 +294,38 @@ The CI/CD pipeline (`.github/workflows/unittests.yml`) automatically:
 
 View CI/CD status in the GitHub repository's "Actions" tab. All tests must pass before merging pull requests.
 
+## Code Quality & Organization
+
+### Consistent Interfaces
+- **Abstract Base Classes**: Defined in `src/interfaces.py` to ensure consistent contracts
+- **Shared Utilities**: Common functions in `src/utils.py` reduce code duplication
+- **Date Alignment**: Centralized in `utils.align_dates()` to eliminate duplication
+
+### Testing Strategy
+- **Smoke Tests**: Quick functional verification (`tests/test_smoke.py`)
+- **Contract Tests**: Validate class interfaces and contracts (`tests/test_class_contracts.py`)
+- **Integration Tests**: End-to-end workflow validation (`tests/test_integration.py`)
+- **Unit Tests**: Module-specific tests for individual components
+
+### End-to-End Demonstration
+Run the complete workflow demonstration:
+```bash
+python scripts/end_to_end_demo.py
+```
+
+This generates:
+- Sample data files
+- Analysis results (CSV, JSON)
+- Visualizations (charts)
+- Complete summary with metrics
+
+Outputs are saved to `output/end_to_end_demo/` with documented sample results.
+
 ## Development
 
-- **Source code**: `src/` - Reusable analysis modules
+- **Source code**: `src/` - Reusable analysis modules with consistent interfaces
 - **Notebooks**: `notebooks/` - Interactive analysis and research
-- **Tests**: `tests/` - Unit tests for modules
+- **Tests**: `tests/` - Comprehensive test suite (unit, contract, smoke, integration)
 - **Scripts**: `scripts/` - Utility and automation scripts
+- **Documentation**: See `IMPROVEMENTS.md` for detailed code organization improvements
 
